@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
 
     #inding new a and b value and minimised sse error
-    yp,sse,del_a,del_b=find_yp_and_sse(a,b,x,y)
+    yp,sse,del_a,del_b=find_yp_sse_dela_delb(a,b,x,y)
     new_sse_error=np.sum(sse)
     new_a=a-(learning_rate*np.sum(del_a))
     new_b=b-(learning_rate*np.sum(del_b))
@@ -59,11 +59,11 @@ if __name__ == '__main__':
     while new_sse_error < sse_error:
         #print(new_sse_error,':',sse_error)
         sse_error=new_sse_error
-        yp,sse,del_a,del_b=find_yp_and_sse(new_a,new_b,x,y)
+        yp,sse,del_a,del_b=find_yp_sse_dela_delb(new_a,new_b,x,y)
         new_sse_error=np.sum(sse)
         new_a=a-(learning_rate*np.sum(del_a))
         new_b=b-(learning_rate*np.sum(del_b))
         #print(new_sse_error,new_a,new_b)
     
     
-    print('a:',new_a,'\nb:',new_b,' with minimised SSE:',new_sse_error)
+    print('a:',new_a,'\nb:',new_b,' with minimised SSE:',sse_error)

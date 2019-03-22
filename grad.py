@@ -29,13 +29,12 @@ if __name__ == '__main__':
 
     a=np.sum(a)/n
     b=np.sum(b)/n
-    print(a,b)
+    print('a:',a,'\nb:',b)
     
     y_pred=[]
     for i in range(n):
         y_predict=a+(b*x_train[i])
         y_pred.append(y_predict)
-        print('y:',y_train[i],'predicted_y:',y_predict)
     print('final_accuracy:',r2_score(y_train,y_pred))
 
     y_plot = []

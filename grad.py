@@ -1,71 +1,48 @@
 import numpy as np
-
-def find_x_and_y(X,Y,x_min,x_max,y_min,y_max):
-    x=[]
-    y=[]
-    for d in X:
-        temp=(d-x_min)/(x_max-x_min)
-        x.append(temp)
-    for d in Y:
-        temp=(d-y_min)/(y_max-y_min)
-        y.append(temp)
-    return x,y
-
-def find_yp_sse_dela_delb(a,b,x,y):
-    yp=[]
-    sse=[]
-    del_a=[]
-    del_b=[]
-    for d in x:
-        temp=(a)+(b*d)
-        yp.append(temp)
-    for i in range(len(yp)):
-        temp=((y[i]-yp[i])**2)/2
-        sse.append(temp)
-    for i in range(len(yp)):
-        temp=-(y[i]-yp[i])
-        del_a.append(temp)
-    for i in range(len(yp)):
-        temp=-((y[i]-yp[i])*x[i])
-        del_b.append(temp)
-    return yp,sse,del_a,del_b
-
+from sklearn.metrics import r2_score
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     data = np.genfromtxt ('data.csv', delimiter=",")
     X=data[:,0]
     Y=data[:,1]
-    x,y=find_x_and_y(X,Y,np.min(X),np.max(X),np.min(Y),np.max(Y))
-    a=0.5 #random a value
-    b=0.5 #random b value
-    learning_rate=0.001 #learning rate
+    x_train = X.reshape(-1,1)
+    y_train = Y.reshape(-1,1)
 
-    #finding a and b value, and sse error
-    yp,sse,del_a,del_b=find_yp_sse_dela_delb(a,b,x,y)
-    sse_error=np.sum(sse)
-    a=a-(learning_rate*np.sum(del_a))
-    b=b-(learning_rate*np.sum(del_b))
-    #print(,sse_error,a,b)
-
-
-    #inding new a and b value and minimised sse error
-    yp,sse,del_a,del_b=find_yp_sse_dela_delb(a,b,x,y)
-    new_sse_error=np.sum(sse)
-    new_a=a-(learning_rate*np.sum(del_a))
-    new_b=b-(learning_rate*np.sum(del_b))
-    #print(new_sse_error,new_a,new_b)
-
-
-    while new_sse_error < sse_error:
-        #print(new_sse_error,':',sse_error)
-        sse_error=new_sse_error
-        a=new_a
-        b=new_b
-        yp,sse,del_a,del_b=find_yp_sse_dela_delb(new_a,new_b,x,y)
-        new_sse_error=np.sum(sse)
-        new_a=a-(learning_rate*np.sum(del_a))
-        new_b=b-(learning_rate*np.sum(del_b))
-        #print(new_sse_error,new_a,new_b)
+    #find a and b
+    n=len(y_train)
+    l_r=0.0001 #learning rate
+    a = np.zeros((n,1))
+    b = np.zeros((n,1))
     
+    epochs = 0
+    while(epochs < 1000):
+        y = a +(b * x_train)
+        error = y - y_train
+        mean_sq_er = np.sum(error**2)
+        mean_sq_er = mean_sq_er/n
+        a = a - l_r * np.sum(error)/n
+        b = b - l_r * np.sum(error * x_train)/n
+        epochs += 1
+        if(epochs%1000==0):
+            print(mean_sq_er)
+
+    a=np.sum(a)/n
+    b=np.sum(b)/n
+    print(a,b)
     
-    print('a:',a,'\nb:',b,' with minimised SSE:',sse_error)
+    y_pred=[]
+    for i in range(n):
+        y_predict=a+(b*x_train[i])
+        y_pred.append(y_predict)
+        print('y:',y_train[i],'predicted_y:',y_predict)
+    print('final_accuracy:',r2_score(y_train,y_pred))
+
+    y_plot = []
+    for i in range(100):
+        y_plot.append(a + b * i)
+    plt.figure(figsize=(10,10))
+    plt.scatter(x_train,y_train,color='red',label='GT')
+    plt.plot(range(len(y_plot)),y_plot,color='black',label = 'pred')
+    plt.legend()
+    plt.show()
